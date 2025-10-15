@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IBM NJ Blogging Platform</title>
+  <style>
+    /* IBM-style color palette & font */
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans&display=swap');
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0 1rem;
+      color: #1f2937;
+    }
+    header {
+      background: #054ada;
+      color: white;
+      padding: 1rem 1rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 1.5rem;
+    }
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    form {
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgb(5 74 218 / 0.15);
+      margin-bottom: 2rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #054ada;
+    }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1.5px solid #ccd6f6;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-family: 'IBM Plex Sans', sans-serif;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #054ada;
+      background: #f0f4ff;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    button {
+      background: #054ada;
+      border: none;
+      color: white;
+      padding: 0.7rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background: #032d9c;
+    }
+    section.posts {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    article.post {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(5 74 218 / 0.1);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.15s ease;
+    }
+    article.post:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgb(5 74 218 / 0.2);
+    }
+    article.post h2 {
+      margin-top: 0;
+      color: #054ada;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+    article.post p {
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 1rem;
+      color: #333;
+    }
+    footer {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+      margin: 3rem 0 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    IBM NJ Blogging Platform
+  </header>
+
+  <main>
+    <form id="blogForm">
+      <label for="title">Post Title</label>
+      <input type="text" id="title" name="title" required placeholder="Enter your post title" />
+
+      <label for="content">Content</label>
+      <textarea id="content" name="content" required placeholder="Write your blog content here..."></textarea>
+
+      <button type="submit">Add Post</button>
+    </form>
+
+    <section class="posts" id="postsSection">
+      <!-- Blog posts will appear here -->
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2025 IBM NJ Blogging Platform
+  </footer>
+
+  <script>
+    const form = document.getElementById('blogForm');
+    const postsSection = document.getElementById('postsSection');
+
+    // Load saved posts from localStorage (optional persistence)
+    let posts = JSON.parse(localStorage.getItem('ibmNjPosts')) || [];
+
+    function renderPosts() {
+      postsSection.innerHTML = '';
+      if(posts.length === 0) {
+        postsSection.innerHTML = '<p style="text-align:center; color:#777;">No posts yet. Add your first post above!</p>';
+        return;
+      }
+
+      posts.forEach(({title, content}) => {
+        const postEl = document.createElement('article');
+        postEl.className = 'post';
+
+        postEl.innerHTML = `
+          <h2>${escapeHTML(title)}</h2>
+          <p>${escapeHTML(content).replace(/\n/g, '<br>')}</p>
+        `;
+
+        postsSection.appendChild(postEl);
+      });
+    }
+
+    // Basic HTML escape to avoid injection
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        })[m];
+      });
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const title = form.title.value.trim();
+      const content = form.content.value.trim();
+
+      if (!title || !content) return;
+
+      posts.unshift({title, content});
+      localStorage.setItem('ibmNjPosts', JSON.stringify(posts));
+
+      form.reset();
+      renderPosts();
+    });
+
+    // Initial render on page load
+    renderPosts();
+  </script>
+</body>
+</html>
